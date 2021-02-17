@@ -7,6 +7,7 @@ import sun.security.provider.X509Factory;
 
 import javax.net.ssl.*;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
@@ -31,6 +32,8 @@ public class S_Client {
 	boolean saveCertFlag = false;
 	private boolean fileFlag = false;
 	private String fileLocation = "";
+	private String trustStoreLocation = "";
+	private char[] storePass = "changeit".toCharArray();
 
 
 	public S_Client(String[] args) throws Exception {
@@ -73,9 +76,20 @@ public class S_Client {
 			}
 
 		}
+
+		int trustStoreIndex = ArrayHelper.indexOfIgnoreCase("-truststore", args);
+		if( trustStoreIndex!= -1 && trustStoreIndex != args.length) {
+			trustStoreLocation = args[trustStoreIndex + 1];
+		}
+
+		int storePassIndex = ArrayHelper.indexOfIgnoreCase("-storePass", args);
+		if( storePassIndex!= -1 && storePassIndex != args.length) {
+			storePass = args[storePassIndex + 1].toCharArray();
+		}
 	}
 
 	private void saveCert(X509Certificate xCert) {
+		System.out.println("Saving cert to " + fileLocation);
 		try {
 			BASE64Encoder encoder = new BASE64Encoder();
 			PrintWriter out = new PrintWriter(new File(fileLocation));
@@ -96,22 +110,27 @@ public class S_Client {
 		SSLContext context = null;
 		try {
 
-			File file = new File("jssecacerts");
+			File file = new File(trustStoreLocation);
 			if (file.isFile() == false) {
-				char SEP = File.separatorChar;
-				File dir = new File(System.getProperty("java.home") + SEP
-						+ "lib" + SEP + "security");
-				file = new File(dir, "jssecacerts");
+				if(trustStoreLocation!=null) {
+					System.out.println("Failed to find trust store at location :" + trustStoreLocation);
+				}
+				file = new File("jssecacerts");
 				if (file.isFile() == false) {
-					file = new File(dir, "cacerts");
+					char SEP = File.separatorChar;
+					File dir = new File(System.getProperty("java.home") + SEP
+							+ "lib" + SEP + "security");
+					file = new File(dir, "jssecacerts");
+					if (file.isFile() == false) {
+						file = new File(dir, "cacerts");
+					}
 				}
 			}
 
-			char[] passphrase = "changeit".toCharArray();
 			System.out.println("Loading KeyStore " + file + "...");
 			InputStream in = new FileInputStream(file);
 			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-			ks.load(in, passphrase);
+			ks.load(in, storePass);
 			in.close();
 
 			context = SSLContext.getInstance("TLS");
