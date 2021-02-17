@@ -6,11 +6,15 @@ import sun.security.validator.Validator;
 import sun.security.validator.ValidatorException;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,7 +24,8 @@ public class S_Client {
 	String[] args = null;
 	String target = "https://self-signed.badssl.com/";
 	URL targetURL = null;
-	URLConnection con = null;
+	HttpsURLConnection con = null;
+	boolean showCertsFlag = false;
 
 
 	public S_Client(String[] args) throws Exception {
@@ -34,8 +39,12 @@ public class S_Client {
 		System.out.println("Target: " + target);
 
 		try {
-			URLConnection con = targetURL.openConnection();
+			con = (HttpsURLConnection) targetURL.openConnection();
 			con.getInputStream();
+
+			if(showCertsFlag) {
+				printCerts();
+			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -56,6 +65,22 @@ public class S_Client {
 		//Probably better logic to be had here
 		target = args[1];
 		targetURL = new URL(target);
+
+		 if(ArrayHelper.indexOfIgnoreCase("-showcerts", args) != -1) {
+			showCertsFlag = true;
+		 }
+	}
+
+	private void printCerts() {
+		Certificate[] certs = null;
+		try {
+			certs = con.getServerCertificates();
+
+
+		} catch (SSLPeerUnverifiedException e) {
+			//Not Sure what Triggers this
+			e.printStackTrace();
+		}
 
 	}
 
