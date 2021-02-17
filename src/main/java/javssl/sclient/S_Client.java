@@ -77,6 +77,7 @@ public class S_Client {
 
 		if (ArrayHelper.indexOfIgnoreCase("-saveCert", args) != -1) {
 			saveCertFlag = true;
+			fileLocation = targetURL.getHost() + ".crt";
 			int fileIndex = ArrayHelper.indexOfIgnoreCase("-file", args);
 			if (fileIndex != -1 && fileIndex != args.length) {
 				fileFlag = true;

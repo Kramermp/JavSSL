@@ -16,6 +16,7 @@ public class JavSSL {
 				break;
 			case UNKNOWN:
 				//Do  Help
+				System.out.println("Unknown: " + args[0]);
 				break;
 		}
 	}
