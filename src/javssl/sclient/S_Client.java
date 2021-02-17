@@ -75,7 +75,9 @@ public class S_Client {
 		Certificate[] certs = null;
 		try {
 			certs = con.getServerCertificates();
-
+			for(int i =0; i < certs.length; i++) {
+				System.out.println(certs.toString());
+			}
 
 		} catch (SSLPeerUnverifiedException e) {
 			//Not Sure what Triggers this
