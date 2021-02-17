@@ -7,7 +7,7 @@ import javssl.sclient.S_Client;
  */
 public class JavSSL {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		JavSSLVerb action = JavSSLVerb.getEnumOf(args[0]);
 
 		switch(action) {
@@ -22,7 +22,7 @@ public class JavSSL {
 
 	public static String[] removeVerb(String[] args) {
 		String[] newArray = new String[args.length - 1];
-		for(int i = 1; i < args.length - 1; i++) {
+		for(int i = 1; i < args.length; i++) {
 			newArray[i - 1 ] = args[i];
 		}
 		return newArray;
